@@ -50,9 +50,13 @@ export default function UserRoutes(app) {
 
   // Profile: return currentUser from session.
   const profile = (req, res) => {
+    console.log("Session ID:", req.sessionID);
+    console.log("Current user in session:", req.session["currentUser"]);
+
     const currentUser = req.session["currentUser"];
     if (!currentUser) {
-      res.sendStatus(401);
+      console.log("No current user found in session");
+      res.status(401).json({ message: "Not authenticated" });
       return;
     }
     res.json(currentUser);

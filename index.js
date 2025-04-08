@@ -19,19 +19,23 @@ app.use(
     origin: process.env.NETLIFY_URL || "http://localhost:5173",
   })
 );
-
+//make the session persist
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
 };
 
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
+    ...sessionOptions.cookie,
     sameSite: "none",
     secure: true,
-    // Removed the domain property
   };
 }
 
