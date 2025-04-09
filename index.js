@@ -4,7 +4,6 @@ import session from "express-session";
 import cors from "cors";
 import Hello from "./Hello.js";
 import Lab5 from "./Lab5/index.js";
-
 import UserRoutes from "./Kambaz/Users/routes.js";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
 import ModuleRoutes from "./Kambaz/Modules/routes.js";
@@ -19,21 +18,17 @@ app.use(
     origin: process.env.NETLIFY_URL || "http://localhost:5173",
   })
 );
-//make the session persist
+
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  },
 };
 
+// configure cookies for cross-domain use
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
-    ...sessionOptions.cookie,
     sameSite: "none",
     secure: true,
   };
@@ -41,7 +36,9 @@ if (process.env.NODE_ENV !== "development") {
 
 app.use(session(sessionOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
+// Routes
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
