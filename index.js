@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import session from "express-session";
 import cors from "cors";
+import mongoose from "mongoose";
+
 import Hello from "./Hello.js";
 import Lab5 from "./Lab5/index.js";
 import UserRoutes from "./Kambaz/Users/routes.js";
@@ -11,6 +13,14 @@ import AssignmentRoutes from "./Kambaz/Assignments/routes.js";
 import EnrollmentRoutes from "./Kambaz/Enrollments/routes.js";
 
 const app = express();
+
+const CONNECTION_STRING =
+  process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz";
+
+mongoose
+  .connect(CONNECTION_STRING)
+  .then(() => console.log("Connected to MongoDB successfully"))
+  .catch((error) => console.error("Error connecting to MongoDB:", error));
 
 app.use(
   cors({
@@ -25,7 +35,6 @@ const sessionOptions = {
   saveUninitialized: false,
 };
 
-// configure cookies for cross-domain use
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
@@ -35,10 +44,10 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 app.use(session(sessionOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// Routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
@@ -47,5 +56,12 @@ EnrollmentRoutes(app);
 Hello(app);
 Lab5(app);
 
+/**
+ * ---------------------------------------------------------------------------
+ * 6. Start the Server
+ * ---------------------------------------------------------------------------
+ */
 const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Server listening on port ${port}`));
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
