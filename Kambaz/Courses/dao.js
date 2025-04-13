@@ -1,40 +1,29 @@
-import Database from "../Database/index.js";
+import model from "./model.js";
 import { v4 as uuidv4 } from "uuid";
 
-export function findAllCourses() {
-  return Database.courses;
+// Retrieve all courses from the MongoDB "courses" collection.
+export async function findAllCourses() {
+  return await model.find();
 }
 
-export function findCoursesForEnrolledUser(userId) {
-  const { courses, enrollments } = Database;
-  const enrolledCourses = courses.filter((course) =>
-    enrollments.some(
-      (enrollment) =>
-        enrollment.user === userId && enrollment.course === course._id
-    )
-  );
-  return enrolledCourses;
+// (Optional) Retrieve courses for an enrolled user.
+// Placeholder: adjust filtering logic as needed.
+export async function findCoursesForEnrolledUser(userId) {
+  return await model.find();
 }
 
+// Create a new course document in the database.
 export function createCourse(course) {
   const newCourse = { ...course, _id: uuidv4() };
-  Database.courses = [...Database.courses, newCourse];
-  return newCourse;
+  return model.create(newCourse);
 }
 
-// Delete a course and all associated enrollments.
+// Delete a course by its ID.
 export function deleteCourse(courseId) {
-  const { courses, enrollments } = Database;
-  Database.courses = courses.filter((course) => course._id !== courseId);
-  Database.enrollments = enrollments.filter(
-    (enrollment) => enrollment.course !== courseId
-  );
+  return model.deleteOne({ _id: courseId });
 }
 
-// NEW: Update a course with the given updates.
+// Update a course document with the provided updates.
 export function updateCourse(courseId, courseUpdates) {
-  const { courses } = Database;
-  const course = courses.find((course) => course._id === courseId);
-  Object.assign(course, courseUpdates);
-  return course;
+  return model.updateOne({ _id: courseId }, { $set: courseUpdates });
 }
