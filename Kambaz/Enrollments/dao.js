@@ -1,6 +1,5 @@
 import model from "./model.js";
 
-// Returns an array of all enrollment documents.
 export async function findAllEnrollments() {
   return await model.find();
 }
