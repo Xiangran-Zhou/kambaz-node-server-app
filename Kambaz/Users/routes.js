@@ -38,13 +38,21 @@ export default function UserRoutes(app) {
   const updateUser = async (req, res) => {
     const { userId } = req.params;
     const userUpdates = req.body;
-    const updatedUser = await userDao.updateUser(userId, userUpdates);
+
+    // Perform the update
+    await userDao.updateUser(userId, userUpdates);
+
+    // Now fetch the freshly updated user from the database
+    const updatedDoc = await userDao.findUserById(userId);
+
+    // If we happen to be updating our own user, update the session
     let currentUser = req.session["currentUser"];
     if (currentUser && currentUser._id === userId) {
-      currentUser = { ...currentUser, ...userUpdates };
-      req.session["currentUser"] = currentUser;
+      req.session["currentUser"] = { ...updatedDoc._doc };
     }
-    res.json(currentUser);
+
+    // Return the updated user doc
+    res.json(updatedDoc);
   };
 
   const signup = async (req, res) => {
